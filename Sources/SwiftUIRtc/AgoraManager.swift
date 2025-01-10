@@ -33,6 +33,14 @@ open class AgoraManager: NSObject, ObservableObject, AgoraRtcEngineDelegate {
     
     /// 📹 The set of all users in the channel that have camera enabled.
     @Published public var enabledVideos: Set<UInt> = []
+    
+    @Published public var videoStats: [UInt: VideoStats] = [:]
+    
+    public struct VideoStats {
+        public let id: UInt
+        public let size: CGSize
+        public let framerate: Int
+    }
 
     /// 🚀 Initializes and configures the Agora RTC Engine Kit.
     ///
@@ -169,5 +177,13 @@ open class AgoraManager: NSObject, ObservableObject, AgoraRtcEngineDelegate {
         default:
             break
         }
+    }
+    
+    open func rtcEngine(_ engine: AgoraRtcEngineKit, remoteVideoStats stats: AgoraRtcRemoteVideoStats) {
+        videoStats[stats.uid] = .init(
+            id: stats.uid,
+            size: CGSize(width: CGFloat(stats.width), height: CGFloat(stats.height)),
+            framerate: stats.rendererOutputFrameRate
+        )
     }
 }
